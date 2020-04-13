@@ -12,9 +12,10 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
     private final List<Fragment> fragmentList = new ArrayList<>();
     private final List<String> fragmentTitleList = new ArrayList<>();
 
-    public ViewPagerAdapter(@NonNull FragmentManager fm) {
-        super(fm);
+    ViewPagerAdapter(@NonNull FragmentManager fm, int BEHAVIOR_SET_USER_VISIBLE_HINT) {
+        super(fm, BEHAVIOR_SET_USER_VISIBLE_HINT);
     }
+
 
     @NonNull
     @Override
@@ -27,12 +28,12 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         return fragmentTitleList.size();
     }
 
-    public void addFragment (Fragment fragment, String title){
+    void addFragment(Fragment fragment, String title) {
         fragmentList.add(fragment);
         fragmentTitleList.add(title);
     }
 
-    public CharSequence getPageTitle(int position){
+    public CharSequence getPageTitle(int position) {
         return fragmentTitleList.get(position);
     }
 }
