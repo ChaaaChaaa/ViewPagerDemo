@@ -47,7 +47,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(),viewPager.getCurrentItem());
-        viewPagerAdapter.addFragment(new FragmentOne(), "One");
+        //프래그먼트 객체 선언은 되도록 Factory Pattern으로 하기 ,
+        viewPagerAdapter.addFragment(FragmentOne.newInstance(), "One");
         viewPagerAdapter.addFragment(new FragmentTwo(), "Two");
         viewPagerAdapter.addFragment(new FragmentThree(), "Three");
         viewPagerAdapter.addFragment(new FragmentFour(), "Four");

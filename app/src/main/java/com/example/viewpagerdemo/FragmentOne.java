@@ -52,6 +52,14 @@ public class FragmentOne extends Fragment {
         // Required empty public constructor
     }
 
+      public static FragmentOne newInstance() {
+        Bundle args = new Bundle();
+
+        FragmentOne fragment = new FragmentOne();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -60,47 +68,57 @@ public class FragmentOne extends Fragment {
         context = container.getContext();
         boxOfficeRecycler = view.findViewById(R.id.boxoffice_recycler);
         initValues();
+        //뺴액!!!!!!!!!!!!!!!!!!!!!!!!!!!!! OncreateView에서 이런 작업 하지말라했는데!!!!!!!!!ㅋㅋㅋㅋㅋㅋㅋ
         showBoxOffice();
         return view;
     }
 
 
-    void initValues(){
+    void initValues() {
         boxOfficeService = RestClient.buildHTTPClient();
     }
 
-    String getCurrentDate(){
-        Date currentTime = Calendar.getInstance().getTime();
+    //메서드 접근차 빼먹지 말기
+    public String getCurrentDate() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, -10);
+        //데이터 못 받아 오는 이유는 날짜.. 이번주 박스오피스는 아직 안 나옴니다. 10일 전쯤으로 하면 아마 지난주 박스오피스가 나오겠죠?
+        Date currentTime = calendar.getTime();
         String currentDate = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(currentTime);
-    return currentDate;
+        return currentDate;
     }
 
-    void showBoxOffice(){
-        boxOfficeService.getBoxOffice(aConst.KEY,getCurrentDate()).enqueue(new Callback<Result>() {
+    void showBoxOffice() {
+        // 네트워크 통신은 워커스래드에서 하기로 했~~
+        boxOfficeService.getBoxOffice(aConst.KEY, getCurrentDate()).enqueue(new Callback<Result>() {
             @Override
             public void onResponse(Call<Result> call, Response<Result> response) {
-                if(response.isSuccessful()){
+                if (response.isSuccessful()) {
                     Result result = response.body();
                     BoxOfficeResult boxOfficeResult = result.getBoxOfficeResult();
                     List<WeeklyBoxOfficeList> weeklyBoxOfficeList2 = boxOfficeResult.getWeeklyBoxOfficeList();
-                    for(WeeklyBoxOfficeList weeklyBoxOffice : weeklyBoxOfficeList2){
+                    for (WeeklyBoxOfficeList weeklyBoxOffice : weeklyBoxOfficeList2) {
                         weeklyBoxOfficeLists.add(weeklyBoxOffice);
                     }
 
                     boxOfficeAdapter = new BoxOfficeAdapter(weeklyBoxOfficeLists, getActivity());
-                    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL,false);
+                    //굳이 프래그먼트에선 getActivity 컨택스트 안 끌고오기 , 꼭 필요한 상황 아니면
+                    // LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL,false);
+                    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
                     boxOfficeRecycler.setLayoutManager(linearLayoutManager);
                     boxOfficeRecycler.setAdapter(boxOfficeAdapter);
                     Log.i(TAG, "Response: " + response.body());
                 }
-                if(!response.isSuccessful()){
+                //야레야레 이프문 이렇게 if if if if no no
+                else {
                     Toast.makeText(context, "데이터를 가져오지 못했습니다.", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Result> call, Throwable t) {
-
+                //여기는 왜 비워두셨을까욥~ 아예 실패했을때도 분키처리 해줘야하지요~
+                t.printStackTrace();
             }
         });
     }
